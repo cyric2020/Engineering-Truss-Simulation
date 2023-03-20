@@ -6,13 +6,13 @@ def isSingular(matrix):
 
 # Define global variables
 E = 70*10**9 # Placeholder (Pa)
-A = 20 # Placeholder (m^2)
+A = 0.0002 # Placeholder (m^2)
 
 # Define nodes
 nodes = np.array([
-    [0, 30],  # Node 0
-    [50, 30], # Node 1
-    [90, 0]   # Node 2
+    [0, 0.3],  # Node 0
+    [0.5, 0.3], # Node 1
+    [0.9, 0]   # Node 2
 ]);
 
 # Define members
@@ -66,7 +66,7 @@ for member in members:
     # print(np.tile(k, (2, 2)))
     K[np.ix_(dofs, dofs)] += k
 
-print(K * L / (E * A)) # correct so far
+# print(K * L / (E * A)) # correct so far
 
 # Finite Element Equation
 # [K]{u} = {F}
@@ -85,23 +85,70 @@ for i, force in enumerate(external_forces):
     dofs = [2*node_id+1]  # Apply the force in the y-direction only
     F[dofs, 0] = force[1]
 
+# print(F)
+
+# Add boundary conditions
+
+# Support types
+NONE = 0
+PIN = 1
+ROLLER = 2
+
+supports = np.array([
+    [0, PIN], # Node 0 is a pin support
+    [1, NONE], # Node 1 is not a support
+    [2, PIN] # Node 2 is a roller support
+])
+
+# Remove the rows and columns of the global stiffness matrix corresponding to the supports
+removedOffset = 0
+removedDofs = []
+
+# Create temporary variables for K and F for solving
+K_solve = K.copy()
+F_solve = F.copy()
+
+for support in supports:
+    node_id, support_type = support
+    if support_type == PIN:
+        dofs = np.array([2*node_id, 2*node_id+1])
+    elif support_type == ROLLER:
+        dofs = np.arrya([2*node_id+1])
+    else:
+        continue
+
+    # Remove the rows and columns
+    K_solve = np.delete(K_solve, dofs - removedOffset, 0)
+    K_solve = np.delete(K_solve, dofs - removedOffset, 1)
+
+    # Remove the external forces
+    F_solve = np.delete(F_solve, dofs - removedOffset, 0)
+
+    # Update the offset
+    removedOffset += len(dofs)
+
+    # Add the removed dofs to the list
+    removedDofs.extend(dofs)
+
+print(K * L / (E * A))
 print(F)
 
+# print(removedDofs)
+
 # Solve for the nodal displacements u
-# u = np.linalg.solve(K, F)
+u = np.linalg.solve(K_solve, F_solve)
 
-# Use lstsq to solve for u (least squares) (could be because there isnt opposite forces)
-u, residuals, rank, s = np.linalg.lstsq(K, F, rcond=None)
+# print(u * 1000) # in mm
 
-# To make the matrix non singular remove the static ones?
+# Create a new U vector with the removed dofs as 0
+U = np.zeros((n_dofs, 1))
+U[removedDofs] = 0
+U[np.setdiff1d(np.arange(n_dofs), removedDofs)] = u
 
-# Calculate the member forces f
-f = []
-for member, stiffness in zip(members, stiffnessMatrices):
-    i, j = member
-    dofs = [2*i, 2*i+1, 2*j, 2*j+1]
-    u_e = u[dofs]
-    f_e = np.dot(stiffness, u_e)
-    f.append(f_e)
+# print(U)
 
-print(f) # idk if it works.
+# Calculate stresses
+stresses = []
+for i, member in enumerate(members):
+    # stress = E/L * {-c -s c s} * {q}
+    # {q} is the vector of displacements at the nodes
