@@ -1,5 +1,9 @@
 import numpy as np
 
+# Create a function to check if a matrix is singular
+def isSingular(matrix):
+    return np.linalg.det(matrix) == 0
+
 # Define global variables
 E = 70*10**9 # Placeholder (Pa)
 A = 20 # Placeholder (m^2)
@@ -86,7 +90,7 @@ print(F)
 # Solve for the nodal displacements u
 # u = np.linalg.solve(K, F)
 
-# Use lstsq to solve for u (least squares)
+# Use lstsq to solve for u (least squares) (could be because there isnt opposite forces)
 u, residuals, rank, s = np.linalg.lstsq(K, F, rcond=None)
 
 # Calculate the member forces f
@@ -98,4 +102,4 @@ for member, stiffness in zip(members, stiffnessMatrices):
     f_e = np.dot(stiffness, u_e)
     f.append(f_e)
 
-print(f)
+print(f) # idk if it works.
