@@ -93,6 +93,8 @@ print(F)
 # Use lstsq to solve for u (least squares) (could be because there isnt opposite forces)
 u, residuals, rank, s = np.linalg.lstsq(K, F, rcond=None)
 
+# To make the matrix non singular remove the static ones?
+
 # Calculate the member forces f
 f = []
 for member, stiffness in zip(members, stiffnessMatrices):
