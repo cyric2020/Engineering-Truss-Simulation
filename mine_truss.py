@@ -17,7 +17,9 @@ def singularityCheck(K):
 start = time.time()
 
 # Define global variables
-E = 70*10**9 # Placeholder (Pa)
+# E = 70*10**9 # Placeholder (Pa)
+# A = 0.0002 # Placeholder (m^2)
+E = 70*10**6 # Placeholder (Pa)
 A = 0.0002 # Placeholder (m^2)
 
 # Define nodes
@@ -90,7 +92,7 @@ external_forces = np.array([
     [0, 0],
     [0, 0],
     [0, 0],
-    [0, -100_000] # Member to add force to
+    [0, -300] # Member to add force to
 ])
 
 # Assemble the global external forces vector F
@@ -116,7 +118,7 @@ ROLLER = 2
 supports = np.array([
     [0, PIN],
     [1, NONE],
-    [2, PIN],
+    [2, ROLLER],
     [3, NONE]
 ])
 
@@ -277,7 +279,6 @@ def viewTrussDeformed(Nodes, Members, Displacements, Forces):
 
         # Get the force
         force = Forces[o]
-        print(force, i)
 
         # Plot the force
         if force[0] > 0:
@@ -286,6 +287,9 @@ def viewTrussDeformed(Nodes, Members, Displacements, Forces):
             plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'r')
         else:
             plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'g')
+
+        # Add the force as a label with a white background
+        plt.text((node_i[0] + node_j[0]) / 2, (node_i[1] + node_j[1]) / 2, str(round(force[0], 2)) + "N", fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
 
 # View Truss (Extras)
 # Nodes, Members, Supports, Forces and Displacements
@@ -296,7 +300,7 @@ def viewTrussExtras(Nodes, Members, Supports, Forces, Displacements):
     # Plot the nodes with their index as the label
     # for i, node in enumerate(Nodes):
     #     plt.scatter(node[0], node[1], c='k')
-    #     plt.text(node[0], node[1], str(i), fontsize=10)
+    #     plt.text(node[0], node[1], str(i), fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), verticalalignment='center', horizontalalignment='center')
 
     # Plot the members
     for member in Members:
@@ -308,7 +312,7 @@ def viewTrussExtras(Nodes, Members, Supports, Forces, Displacements):
         node_j = Nodes[j]
 
         # Plot the member
-        # plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'k')
+        plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'k:')
 
     # Plot the supports
     for support in Supports:
