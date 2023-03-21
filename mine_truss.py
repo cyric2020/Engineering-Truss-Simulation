@@ -2,6 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
+# Singularity Check
+def singularityCheck(K):
+    # Get the determinant of the matrix
+    det = np.linalg.det(K)
+
+    # If the determinant is 0, the matrix is singular
+    if det == 0:
+        return True
+    else:
+        return False
+
 # Start timer
 start = time.time()
 
@@ -122,7 +133,7 @@ for support in supports:
     if support_type == PIN:
         dofs = np.array([2*node_id, 2*node_id+1])
     elif support_type == ROLLER:
-        dofs = np.arrya([2*node_id+1])
+        dofs = np.array([2*node_id+1])
     else:
         continue
 
@@ -143,6 +154,11 @@ for support in supports:
 # print(F)
 
 # print(removedDofs)
+
+# Check to see if the matrix is singular
+if singularityCheck(K_solve):
+    print("The truss is not in equilibrium.")
+    exit()
 
 # Solve for the nodal displacements u
 u = np.linalg.solve(K_solve, F_solve)
@@ -232,8 +248,6 @@ def viewTruss(Nodes, Members):
     # Show the plot
     plt.show()
 
-# viewTruss(nodes, members)
-
 # Create a function to render the deformed truss with the forces (red = compression, blue = tension)
 def viewTrussDeformed(Nodes, Members, Displacements, Forces):
     # Make Nodes a float array
@@ -278,6 +292,11 @@ def viewTrussDeformed(Nodes, Members, Displacements, Forces):
 def viewTrussExtras(Nodes, Members, Supports, Forces, Displacements):
     # Plot the nodes
     plt.scatter(Nodes[:, 0], Nodes[:, 1])
+
+    # Plot the nodes with their index as the label
+    # for i, node in enumerate(Nodes):
+    #     plt.scatter(node[0], node[1], c='k')
+    #     plt.text(node[0], node[1], str(i), fontsize=10)
 
     # Plot the members
     for member in Members:
