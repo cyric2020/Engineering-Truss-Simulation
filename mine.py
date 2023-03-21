@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import time
 
 # Start timer
@@ -72,7 +73,8 @@ for member in members:
 # Define external forces
 external_forces = np.array([
     [0, 0], # Node 0
-    [0, -12000], # Node 1 (12,000 N downwards)
+    # [0, -12000], # Node 1 (12,000 N downwards)
+    [0, -100000], # Node 1
     [0, 0] # Node 2
 ])
 
@@ -80,8 +82,12 @@ external_forces = np.array([
 F = np.zeros((n_dofs, 1))
 for i, force in enumerate(external_forces):
     node_id = i
-    dofs = [2*node_id+1]  # Apply the force in the y-direction only
-    F[dofs, 0] = force[1]
+    # dofs = [2*node_id+1]  # Apply the force in the y-direction only (bruh)
+    # F[dofs, 0] = force[1]
+
+    # Apply the force in both the x and y directions
+    dofs = [2*node_id, 2*node_id+1]
+    F[dofs, 0] = force
 
 # print(F)
 
@@ -195,3 +201,135 @@ end = time.time()
 
 # Print the time taken in ms
 print("Time taken:", round((end - start) * 1000, 2), "ms")
+
+
+# ************************************
+# Functions for plotting/visualisation
+# ************************************
+
+# View Truss (Nodes and Members)
+def viewTruss(Nodes, Members):
+    # Plot the nodes
+    plt.scatter(Nodes[:, 0], Nodes[:, 1])
+
+    # Plot the members
+    for member in Members:
+        # Get node IDs
+        i, j = member
+
+        # Get node coordinates
+        node_i = Nodes[i]
+        node_j = Nodes[j]
+
+        # Plot the member
+        plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'k')
+
+    # Show the plot
+    plt.show()
+
+# viewTruss(nodes, members)
+
+# Create a function to render the deformed truss with the forces (red = compression, blue = tension)
+def viewTrussDeformed(Nodes, Members, Displacements, Forces):
+    # Move the nodes by the displacements
+    for i, node in enumerate(Nodes):
+        Nodes[i] = node + Displacements[2*i:2*i+2].T
+
+    # Plot the nodes
+    plt.scatter(Nodes[:, 0], Nodes[:, 1])
+
+    # Plot the members
+    for member in Members:
+        # Get node IDs
+        i, j = member
+
+        # Get node coordinates
+        node_i = Nodes[i]
+        node_j = Nodes[j]
+
+        # Plot the member
+        plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'k')
+
+    # Plot the forces
+    for i, member in enumerate(Members):
+        # Get node IDs
+        i, j = member
+
+        # Get node coordinates
+        node_i = Nodes[i]
+        node_j = Nodes[j]
+
+        # Get the force
+        force = Forces[i]
+
+        # Plot the force
+        if force > 0:
+            plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'b')
+        else:
+            plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'r')
+
+# View Truss (Extras)
+# Nodes, Members, Supports, Forces and Displacements
+def viewTrussExtras(Nodes, Members, Supports, Forces, Displacements):
+    # Plot the nodes
+    plt.scatter(Nodes[:, 0], Nodes[:, 1])
+
+    # Plot the members
+    for member in Members:
+        # Get node IDs
+        i, j = member
+
+        # Get node coordinates
+        node_i = Nodes[i]
+        node_j = Nodes[j]
+
+        # Plot the member
+        plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'k')
+
+    # Plot the supports
+    for support in Supports:
+        # Get node ID
+        node_id, support_type = support
+
+        # Get node coordinates
+        node = Nodes[node_id]
+
+        # Plot the support
+        if support_type == PIN:
+            plt.plot(node[0], node[1], 'ro')
+        elif support_type == ROLLER:
+            plt.plot(node[0], node[1], 'bo')
+
+    # Plot the forces
+    for i, force in enumerate(Forces):
+        # Get node ID
+        node_id = i
+
+        # Get node coordinates
+        node = Nodes[node_id]
+
+        # Plot the force
+        # plt.arrow(node[0], node[1], 0, 0.1, head_width=0.03, head_length=0.03, color='r')
+
+    # Plot the displacements
+    for i, displacement in enumerate(Displacements.reshape(-1, 2)):
+        # Get node ID
+        node_id = i
+
+        # Get node coordinates
+        node = Nodes[node_id]
+
+        # if the displacements are 0, skip
+        if np.all(displacement == 0):
+            continue
+
+        # Plot the displacement
+        plt.arrow(node[0], node[1], displacement[0], displacement[1], head_width=0.01, head_length=0.01, color='b')
+
+    # Draw the deformed truss
+    viewTrussDeformed(Nodes, Members, Displacements, Forces)
+
+    # Show the plot
+    plt.show()
+
+viewTrussExtras(nodes, members, supports, forces, U)
