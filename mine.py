@@ -1,4 +1,8 @@
 import numpy as np
+import time
+
+# Start timer
+start = time.time()
 
 # Define global variables
 E = 70*10**9 # Placeholder (Pa)
@@ -185,3 +189,9 @@ for i, member in enumerate(members):
     forces.append(force)
 
     print("Force in member", i, "is", round(force[0], 2), "N") # WORKS
+
+# End the timer
+end = time.time()
+
+# Print the time taken in ms
+print("Time taken:", round((end - start) * 1000, 2), "ms")
