@@ -1,9 +1,5 @@
 import numpy as np
 
-# Create a function to check if a matrix is singular
-def isSingular(matrix):
-    return np.linalg.det(matrix) == 0
-
 # Define global variables
 E = 70*10**9 # Placeholder (Pa)
 A = 0.0002 # Placeholder (m^2)
@@ -13,7 +9,7 @@ nodes = np.array([
     [0, 0.3],  # Node 0
     [0.5, 0.3], # Node 1
     [0.9, 0]   # Node 2
-]);
+])
 
 # Define members
 members = np.array([
@@ -50,8 +46,6 @@ for member in members:
         [-c**2, -c*s, c**2, c*s],
         [-c*s, -s**2, c*s, s**2]
     ])
-
-    # print(k_m)
 
     # Calculate stiffness matrix with global variables
     k = (E * A / L) * k_m
@@ -130,8 +124,8 @@ for support in supports:
     # Add the removed dofs to the list
     removedDofs.extend(dofs)
 
-print(K * L / (E * A))
-print(F)
+# print(K * L / (E * A))
+# print(F)
 
 # print(removedDofs)
 
@@ -148,7 +142,46 @@ U[np.setdiff1d(np.arange(n_dofs), removedDofs)] = u
 # print(U)
 
 # Calculate stresses
+# loop through every member
 stresses = []
+forces = []
 for i, member in enumerate(members):
-    # stress = E/L * {-c -s c s} * {q}
-    # {q} is the vector of displacements at the nodes
+    # Get node IDs
+    i, j = member
+
+    # Get node coordinates
+    node_i = nodes[i]
+    node_j = nodes[j]
+
+    # Calculate length of member
+    L = np.linalg.norm(node_j - node_i)
+
+    # Calculate cosines and sines
+    c = (node_j[0] - node_i[0]) / L
+    s = (node_j[1] - node_i[1]) / L
+
+    # Get the q vector
+    # q is the vector of the displacements of the two dofs of the member
+    q = np.array([U[2*i], U[2*i+1], U[2*j], U[2*j+1]]) # I think its correct?
+    # print(q)
+
+    # Compute the stress matrix M
+    M = np.array([-c, -s, c, s])
+
+    # Compute the stress
+    stress = E / L * np.matmul(M, q)
+
+    # Append the stress to the list
+    stresses.append(stress)
+
+    print("Stress in member", i, "is", round(stress[0], 2), "N/m") # WORKS
+
+    # Calculate the force from the stress
+    # stress = F / A
+    # F = stress * A
+    force = stress * A
+
+    # Append the force to the list
+    forces.append(force)
+
+    print("Force in member", i, "is", round(force[0], 2), "N") # WORKS
