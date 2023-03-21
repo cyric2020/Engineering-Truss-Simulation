@@ -169,6 +169,7 @@ u = np.linalg.solve(K_solve, F_solve)
 
 # Create a new U vector with the removed dofs as 0
 U = np.zeros((n_dofs, 1))
+print(removedDofs)
 U[removedDofs] = 0
 U[np.setdiff1d(np.arange(n_dofs), removedDofs)] = u
 

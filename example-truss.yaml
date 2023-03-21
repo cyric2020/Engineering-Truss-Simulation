@@ -1,0 +1,28 @@
+Joints:
+# [x, y]
+  - [0, 0]
+  - [5, 0]
+  - [10, 0]
+  - [5, 5]
+
+Members:
+# [Joint from, Joint to]
+  - [0, 1]
+  - [1, 2]
+  - [1, 3]
+  - [3, 2]
+  - [0, 3]
+
+ExternalForces:
+# [X force, Y force]
+  - [0, 0]
+  - [0, 0]
+  - [0, 0]
+  - [0, -300]
+
+Supports:
+# [Joint id, Support type (PIN, ROLLER, NONE)]
+  - [0, PIN]
+  - [1, NONE]
+  - [2, ROLLER]
+  - [3, NONE]
