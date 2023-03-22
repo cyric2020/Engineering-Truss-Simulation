@@ -16,6 +16,155 @@ class Truss:
             self.ExternalForces = np.array(data['ExternalForces'])
             self.Materials = data['Materials']
 
+        self.filename = filename
+
+    def generateTable(self, columns, rows, sep="|"):
+        columnLengths = [0] * len(columns)
+        columnNames = columns
+        for i, row in enumerate(rows):
+            # the row is an array of values
+            for j, value in enumerate(row):
+                columnLengths[j] = max(columnLengths[j], len(str(value))) | max(columnLengths[j], len(" " + columnNames[j] + " "))
+        table = ""
+
+        # Add a seperator line
+        for i, column in enumerate(columns):
+            table += "-" * (columnLengths[i]+2) + sep
+        table += "\n"
+
+        # Add the column names
+        for i, column in enumerate(columns):
+            table += " " + column.ljust(columnLengths[i]) + " " + sep
+        table += "\n"
+        
+        # Add the seperator
+        for i, column in enumerate(columns):
+            table += "-" * (columnLengths[i]+2) + sep
+        table += "\n"
+
+        # Add the rows
+        for i, row in enumerate(rows):
+            for j, value in enumerate(row):
+                table += " " + str(value).ljust(columnLengths[j]) + " " + sep
+
+            table += "\n"
+
+        # Add a seperator line
+        for i, column in enumerate(columns):
+            table += "-" * (columnLengths[i]+2) + sep
+        table += "\n"
+
+        return table
+
+    def generateReport(self):
+        # Generate a report of the solved truss
+        report = ""
+
+        seperatorCharacter = "-"
+
+        # Add the title
+        title = "Truss Report for \"" + self.filename.split('.')[0] + "\" | " + time.strftime("%d/%m/%Y %H:%M:%S")
+        report += seperatorCharacter * (len(title)+2) + "\n"
+        report += " " + title + " \n"
+        report += seperatorCharacter * (len(title)+2) + "\n\n"
+
+        # Overview Debug data
+        report += "--------\n"
+        report += "Overview\n"
+        report += "--------\n"
+        report += "Nodes: " + str(len(self.Nodes)) + "\n"
+        report += "Members: " + str(len(self.Members)) + "\n"
+        report += "Supports: " + str(len(self.Supports)) + "\n"
+        report += "External Forces: " + str(len(self.ExternalForces)) + "\n"
+        report += "Solve Time: " + str(round(self.solveTime, 6)) + "s\n\n"
+
+        # Node format:
+        # Node ID | X | Y | Displacement X | Displacement Y
+        report += "Nodes\n"
+
+        # Generate a table for the nodes where each column is equal widths across rows
+        # Get the maximum length of each column
+        nodesRows = []
+        for i, node in enumerate(self.Nodes):
+            nodesRows.append([i, node[0], node[1], round(self.Displacements[2*i][0], 4), round(self.Displacements[2*i+1][0], 4), self.Supports[i][1]])
+        nodesTable = self.generateTable(["Node ID", "X", "Y", "Displacement X", "Displacement Y", "Support Type"], nodesRows)
+        report += nodesTable + "\n\n"
+
+
+        # Member format:
+        # Member ID | Node 1 | Node 2 | Material | Area | Force | Stress
+        report += "Members\n"
+
+        # Generate a table for the members where each column is equal widths across rows
+        # Get the maximum length of each column
+        membersRows = []
+        for i, member in enumerate(self.Members):
+            membersRows.append([i, member[0], member[1], member[2], member[3], round(self.Forces[i][0], 4), round(self.Stresses[i][0], 4)])
+        membersTable = self.generateTable(["Member ID", "Node 1", "Node 2", "Material", "Area", "Force", "Stress"], membersRows)
+        report += membersTable + "\n\n"
+
+
+        # External Forces format:
+        # Node ID | Force X | Force Y
+        report += "External Forces\n"
+
+        # Generate a table for the external forces where each column is equal widths across rows
+        # Get the maximum length of each column
+        externalForcesRows = []
+        for i, force in enumerate(self.ExternalForces):
+            externalForcesRows.append([i, force[0], force[1]])
+        externalForcesTable = self.generateTable(["Node ID", "Force X", "Force Y"], externalForcesRows)
+        report += externalForcesTable + "\n\n"
+
+
+        # Reaction Forces format:
+        # Node ID | Force X | Force Y
+        report += "Reaction Forces\n"
+
+        # Generate a table for the reaction forces where each column is equal widths across rows
+        # Get the maximum length of each column
+        reactionForcesRows = []
+        for i, force in enumerate(self.R.reshape(-1, 2)):
+            reactionForcesRows.append([i, round(force[0], 4), round(force[1], 4)])
+        reactionForcesTable = self.generateTable(["Node ID", "Force X", "Force Y"], reactionForcesRows)
+        report += reactionForcesTable + "\n\n"
+
+
+        # Material format:
+        # Material Name | Young's Modulus | Max Stress
+        report += "Materials\n"
+
+        # Generate a table for the materials where each column is equal widths across rows
+        # Get the maximum length of each column
+        materialsRows = []
+        for i, material in enumerate(self.Materials):
+            materialsRows.append([material, self.Materials[material]['E'], self.Materials[material]['MaxStress']])
+        materialsTable = self.generateTable(["Material Name", "Young's Modulus", "Max Stress"], materialsRows)
+        report += materialsTable + "\n\n"
+
+
+        # Other debug info (K, U, R matrices)
+        report += seperatorCharacter * 27 + "\n"
+        report += "Debug Information (K, F, R)\n"
+        report += seperatorCharacter * 27 + "\n\n"
+
+        report += "K Matrix\n"
+        # report += str(self.K) + "\n\n"
+        # make the matrix more readable with equal column widths
+        matrixTable = self.generateTable([""]*len(self.K), self.K)
+
+        # remove the first 2 lines of the table
+        matrixTable = matrixTable.split("\n")[2:]
+        report += "\n".join(matrixTable) + "\n\n"
+
+        report += "U Matrix\n"
+        report += str(self.U) + "\n\n"
+
+        report += "R Matrix\n"
+        report += str(self.R) + "\n\n"
+
+        return report
+
     def viewTruss(self):
         # Plot the nodes
         plt.scatter(self.Nodes[:, 0], self.Nodes[:, 1])
@@ -284,6 +433,9 @@ class Truss:
         U[removedDofs] = 0
         U[np.setdiff1d(np.arange(n_dofs), removedDofs)] = u
 
+        # Save the U vector
+        self.U = U
+
         # Calculate stresses
         stresses = []
         forces = []
@@ -322,6 +474,12 @@ class Truss:
             # Append the force to the list
             forces.append(force)
 
+        # Save the forces to the object
+        self.Forces = forces
+
+        # Save the stresses to the object
+        self.Stresses = stresses
+
         # Calculate the reaction forces
         # R = K * U
         R = np.matmul(K, U)
@@ -359,23 +517,30 @@ class Truss:
         return U, forces
 
 myTruss = Truss()
-myTruss.loadData('example-truss-materials.yaml')
+# myTruss.loadData('example-truss-materials.yaml')
+myTruss.loadData('truss-materials.yaml')
 
 # myTruss.viewTruss()
 # exit()
 
 displacements, forces = myTruss.solveTruss()
 
-myTruss.viewTrussExtras(displacements, forces)
+# myTruss.viewTrussExtras(displacements, forces)
 
 # Print out K in a nice format
-print("K = ")
-for row in myTruss.K:
-    print("[", end="")
-    for col in row:
-        print("{:10.2f}".format(col), end=" ")
-    print("]")
-print()
+# print("K = ")
+# for row in myTruss.K:
+#     print("[", end="")
+#     for col in row:
+#         print("{:10.2f}".format(col), end=" ")
+#     print("]")
+# print()
+
+# Save the report
+myTruss.Displacements = displacements
+report = myTruss.generateReport()
+with open("report.txt", "w") as f:
+    f.write(report)
 
 # Print out how long it took to solve in ms
 print("Solve time: {:.2f} ms".format(myTruss.solveTime * 1000))
