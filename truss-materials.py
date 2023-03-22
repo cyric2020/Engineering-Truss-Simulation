@@ -185,11 +185,8 @@ class Truss:
         # report += str(self.K) + "\n\n"
         # make the matrix more readable with equal column widths
         # matrixTable = self.generateTable([""]*len(self.K), self.K)
-        matrixTable = self.prettyMatrix(self.K)
-
-        # remove the first 2 lines of the table
-        matrixTable = matrixTable.split("\n")[2:]
-        report += "\n".join(matrixTable) + "\n\n"
+        matrixTable = self.prettyMatrix(self.K, 1)
+        report += matrixTable + "\n\n"
 
         report += "U Matrix\n"
         # report += str(self.U) + "\n\n"
@@ -197,7 +194,7 @@ class Truss:
 
         report += "R Matrix\n"
         # report += str(self.R) + "\n\n"
-        report += self.prettyMatrix(self.R) + "\n\n"
+        report += self.prettyMatrix(self.R, 2) + "\n\n"
 
         return report
 
