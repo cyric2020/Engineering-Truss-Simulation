@@ -55,6 +55,39 @@ class Truss:
         table += "\n"
 
         return table
+    
+    def prettyMatrix(self, matrix, decimals=4):
+        # Print out the matrix in a nice format
+        # Get the maximum length of each column
+        columnLengths = [0] * len(matrix[0])
+        for i, row in enumerate(matrix):
+            # the row is an array of values
+            for j, value in enumerate(row):
+                columnLengths[j] = max(columnLengths[j], len(str(round(value, decimals))))
+        table = ""
+
+        # Add the rows
+        for i, row in enumerate(matrix):
+            table += "["
+            for j, value in enumerate(row):
+                # Line up the numbers to the decimal point
+                # get the length of ther remainder of the number after the decimal point
+                remainderLength = len(str(round(value, decimals)))-len(str(round(value, decimals)).split('.')[0])-1
+
+                numberLength = len(str(round(value, decimals)))
+
+                # Add the spaces before the number
+                table += " " * (columnLengths[j] - numberLength + remainderLength)
+
+                # Add the number
+                table += str(round(value, decimals))
+
+                # Add the spaces after the number the inverse of the spaces before the number
+                table += " " * (4 - remainderLength) + " "
+
+            table += "]\n"
+
+        return table
 
     def generateReport(self):
         # Generate a report of the solved truss
@@ -151,17 +184,20 @@ class Truss:
         report += "K Matrix\n"
         # report += str(self.K) + "\n\n"
         # make the matrix more readable with equal column widths
-        matrixTable = self.generateTable([""]*len(self.K), self.K)
+        # matrixTable = self.generateTable([""]*len(self.K), self.K)
+        matrixTable = self.prettyMatrix(self.K)
 
         # remove the first 2 lines of the table
         matrixTable = matrixTable.split("\n")[2:]
         report += "\n".join(matrixTable) + "\n\n"
 
         report += "U Matrix\n"
-        report += str(self.U) + "\n\n"
+        # report += str(self.U) + "\n\n"
+        report += self.prettyMatrix(self.U) + "\n\n"
 
         report += "R Matrix\n"
-        report += str(self.R) + "\n\n"
+        # report += str(self.R) + "\n\n"
+        report += self.prettyMatrix(self.R) + "\n\n"
 
         return report
 
