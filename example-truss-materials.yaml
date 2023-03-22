@@ -1,3 +1,8 @@
+Materials:
+  Steel:
+    E: 200_000_000 # 200 GPa
+    MaxStress: 8*10^8 # 800 N/m^2
+
 Joints:
 # [x, y]
   - [0, 0]  # 0
@@ -7,7 +12,7 @@ Joints:
 
 Members:
 # [Joint from, Joint to]
-  - [0, 1]
+  - [0, 1, Steel, ]
   - [1, 2]
   - [1, 3]
   - [3, 2]

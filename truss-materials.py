@@ -356,8 +356,7 @@ class Truss:
 E = 70e6
 A = 0.0005 # Radius of 1.26 cm
 myTruss = Truss(E, A)
-# myTruss.loadData('example-truss.yaml')
-myTruss.loadData('truss.yaml')
+myTruss.loadData('example-truss-materials.yaml')
 
 # myTruss.viewTruss()
 # exit()
@@ -365,28 +364,6 @@ myTruss.loadData('truss.yaml')
 displacements, forces = myTruss.solveTruss()
 
 myTruss.viewTrussExtras(displacements, forces)
-
-# Max_Stress = 4e8 # Pa (400 MPa) [Maximum stress of "Steel"]
-Max_Stress = 5e6
-# slowly increment the force on node 6 until the truss fails
-# max_test = -500_000
-# for i in range(0, max_test, -50):
-#     # print out the percentage complete
-#     if i % 150 == 0:
-#         print("{:.2f}%".format((i / max_test) * 100), end="\r")
-#     myTruss.ExternalForces[6] = np.array([0, i])
-#     displacements, forces = myTruss.solveTruss()
-    
-#     stresses = myTruss.stresses
-#     if max(stresses) > Max_Stress:
-#         print("Truss failed at force of ", i, "N")
-#         print("Maximum weight: ", round(abs(i)/9.81, 2), "kg")
-#         # print what truss failed
-#         print("Member", np.argmax(stresses), "failed")
-#         myTruss.viewTrussExtras(displacements, forces)
-#         break
-
-# exit()
 
 # Print out K in a nice format
 print("K = ")
