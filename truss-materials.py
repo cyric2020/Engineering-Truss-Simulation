@@ -192,6 +192,10 @@ class Truss:
         # report += str(self.U) + "\n\n"
         report += self.prettyMatrix(self.U) + "\n\n"
 
+        report += "F Matrix\n"
+        # report += str(self.F) + "\n\n"
+        report += self.prettyMatrix(self.Forces, 2) + "\n\n"
+
         report += "R Matrix\n"
         # report += str(self.R) + "\n\n"
         report += self.prettyMatrix(self.R, 2) + "\n\n"
