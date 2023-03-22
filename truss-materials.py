@@ -83,7 +83,7 @@ class Truss:
                 table += str(round(value, decimals))
 
                 # Add the spaces after the number the inverse of the spaces before the number
-                table += " " * (4 - remainderLength) + " "
+                table += " " * (decimals - remainderLength) + " "
 
             table += "]\n"
 
