@@ -194,7 +194,7 @@ class Truss:
 
         report += "F Matrix\n"
         # report += str(self.F) + "\n\n"
-        report += self.prettyMatrix(self.Forces, 2) + "\n\n"
+        report += self.prettyMatrix(self.F, 2) + "\n\n"
 
         report += "R Matrix\n"
         # report += str(self.R) + "\n\n"
@@ -421,6 +421,9 @@ class Truss:
             # Apply the force in both the x and y directions
             dofs = [2*node_id, 2*node_id+1]
             F[dofs, 0] = force
+
+        # Save the F vector
+        self.F = F
 
         # Add boundary conditions
 
