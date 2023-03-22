@@ -525,9 +525,9 @@ myTruss.loadData('truss-materials.yaml')
 
 displacements, forces = myTruss.solveTruss()
 
-myTruss.viewTrussExtras(displacements, forces)
+# myTruss.viewTrussExtras(displacements, forces)
 
-exit()
+# exit()
 
 # Print out K in a nice format
 # print("K = ")
