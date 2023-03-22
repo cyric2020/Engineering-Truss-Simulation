@@ -4,9 +4,7 @@ import matplotlib.pyplot as plt
 import time
 
 class Truss:
-    def __init__(self, E_, A_):
-        self.E = E_
-        self.A = A_
+    def __init__(self):
         pass
 
     def loadData(self, filename):
@@ -16,6 +14,7 @@ class Truss:
             self.Members = np.array(data['Members'])
             self.Supports = np.array(data['Supports'])
             self.ExternalForces = np.array(data['ExternalForces'])
+            self.Materials = data['Materials']
 
     def viewTruss(self):
         # Plot the nodes
@@ -61,7 +60,8 @@ class Truss:
         # Plot the forces
         for o, member in enumerate(self.Members):
             # Get node IDs
-            i, j = member
+            i, j, Material, A = member
+            i, j = int(i), int(j)
 
             # Get node coordinates
             node_i = Nodes[i]
@@ -88,7 +88,8 @@ class Truss:
         # Plot the members
         for member in self.Members:
             # Get node IDs
-            i, j = member
+            i, j, Material, A = member
+            i, j = int(i), int(j)
 
             # Get node coordinates
             node_i = self.Nodes[i]
@@ -188,7 +189,9 @@ class Truss:
         stiffnessMatricies = []
         for member in self.Members:
             # Get node IDs
-            i, j = member
+            i, j, Material, A = member
+            i, j, Material, A = int(i), int(j), str(Material), float(A)
+            E = float(self.Materials[Material]['E'])
 
             # Get node coordinates
             node_i = self.Nodes[i]
@@ -210,7 +213,7 @@ class Truss:
             ])
 
             # Calculate the stiffness matrix for the member
-            k = (self.E * self.A / L) * k_m
+            k = (E * A / L) * k_m
 
             # Add the stiffness matrix to the list
             stiffnessMatricies.append(k)
@@ -286,7 +289,9 @@ class Truss:
         forces = []
         for o, member in enumerate(self.Members):
             # Get node IDs
-            i, j = member
+            i, j, Material, A = member
+            i, j, Material, A = int(i), int(j), str(Material), float(A)
+            E = float(self.Materials[Material]['E'])
 
             # Get node coordinates
             node_i = self.Nodes[i]
@@ -353,9 +358,7 @@ class Truss:
 
         return U, forces
 
-E = 70e6
-A = 0.0005 # Radius of 1.26 cm
-myTruss = Truss(E, A)
+myTruss = Truss()
 myTruss.loadData('example-truss-materials.yaml')
 
 # myTruss.viewTruss()
