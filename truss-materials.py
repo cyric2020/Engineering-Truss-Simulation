@@ -578,6 +578,39 @@ displacements, forces = myTruss.solveTruss()
 #     print("]")
 # print()
 
+# Test node 6 till failure
+TEST_FOR_FAILURE = True
+
+if TEST_FOR_FAILURE:
+    max_force = -100_000
+    for v in range(0, max_force, -1):
+        myTruss.ExternalForces[6] = v
+        displacements, forces = myTruss.solveTruss()
+        
+        # Check each member to see if it went over the max stress of that member's material
+        for o, member in enumerate(myTruss.Members):
+            # Get node IDs
+            i, j, Material, A = member
+            i, j, Material, A = int(i), int(j), str(Material), float(A)
+            E = float(myTruss.Materials[Material]['E'])
+
+            # Get the stress of the member
+            stress = abs(myTruss.Stresses[o])
+
+            # Get the max stress of the material
+            max_stress = float(myTruss.Materials[Material]['MaxStress'])
+
+            if stress > max_stress:
+                print("Member {} failed at {}N, {}Kg".format(o, v, round(abs(v) / 9.81, 2)))
+                break
+
+        else:
+            print("{:.2f}% complete".format((v / max_force) * 100), end="\r")
+            continue
+        break
+
+        # Print out the percentage complete
+
 # Save the report
 myTruss.Displacements = displacements
 report = myTruss.generateReport()
@@ -586,5 +619,3 @@ with open("report.txt", "w") as f:
 
 # Print out how long it took to solve in ms
 print("Solve time: {:.2f} ms".format(myTruss.solveTime * 1000))
-
-
