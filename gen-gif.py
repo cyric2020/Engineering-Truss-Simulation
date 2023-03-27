@@ -4,8 +4,6 @@ import os
 import imageio
 
 images = []
-# for filename in os.listdir('images'):
-#     images.append(imageio.imread('images/' + filename))
 i = 0
 while os.path.isfile('images/truss-{}.png'.format(i)):
     try:
