@@ -1,11 +1,11 @@
 Materials:
   Steel:
-    E: 200_000_000 # 200 GPa
-    MaxStress: 8_000_000 # 8 GPa
+    E: 200_000_000 # 200 GPa / 200 GN/m^2
+    MaxStress: 8_000_000 # 8 GPa / 8 GN/m^2
 
   Balsa:
-    E: 3_710_000_000 # 3.71 GPa
-    MaxStress: 6_900_000 # 6.9 MPa
+    E: 3_710_000_000 # 3.71 GPa / 3.71 GN/m^2
+    MaxStress: 6_900_000 # 6.9 MPa / 6.9 MN/m^2
 
 Joints:
 # [x, y]
@@ -38,11 +38,12 @@ ExternalForces:
 # [X force, Y force]
   - [0, 0]
   - [0, 0]
+  - [0, -2_000_000] # Bottom force
   - [0, 0]
   - [0, 0]
   - [0, 0]
-  - [0, 0]
-  - [0, -2310]
+  # - [0, -2310] # Top force
+  - [0, 0] # Zeroed out for now
   - [0, 0]
 
 Supports:
