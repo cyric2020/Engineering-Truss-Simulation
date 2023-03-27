@@ -21,6 +21,54 @@ class Truss:
 
         self.filename = filename
 
+    def saveState(self, filename):
+        # Save the state of the truss to a file so that it can be loaded later
+        data = {
+            'Joints': self.Nodes.tolist(),
+            'Members': self.Members.tolist(),
+            'Supports': self.Supports.tolist(),
+            'ExternalForces': self.ExternalForces.tolist(),
+            'Materials': self.Materials
+        }
+
+        # Check if the truss object has an attribute called Displacements
+        if hasattr(self, 'Displacements'):
+            data['Displacements'] = self.Displacements.tolist()
+        if hasattr(self, 'Stresses'):
+            # Convert the list of np arrays to a list of lists
+            data['Stresses'] = [stress.tolist() for stress in self.Stresses]
+            pass
+        if hasattr(self, 'Forces'):
+            data['Forces'] = [force.tolist() for force in self.Forces]
+        if hasattr(self, 'solveTime'):
+            data['solveTime'] = self.solveTime
+        if hasattr(self, 'R'):
+            data['R'] = self.R.tolist()
+
+        with open(filename, 'w') as f:
+            yaml.dump(data, f)
+
+    def loadState(self, filename):
+        # Load the state of the truss from a file
+        with open(filename, 'r') as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
+            self.Nodes = np.array(data['Joints'], dtype=float)
+            self.Members = np.array(data['Members'])
+            self.Supports = np.array(data['Supports'])
+            self.ExternalForces = np.array(data['ExternalForces'])
+            self.Materials = data['Materials']
+
+            if 'Displacements' in data:
+                self.Displacements = np.array(data['Displacements'])
+            if 'Stresses' in data:
+                self.Stresses = [np.array(stress) for stress in data['Stresses']]
+            if 'Forces' in data:
+                self.Forces = [np.array(force) for force in data['Forces']]
+            if 'solveTime' in data:
+                self.solveTime = data['solveTime']
+            if 'R' in data:
+                self.R = np.array(data['R'])
+
     def generateTable(self, columns, rows, sep="|"):
         columnLengths = [0] * len(columns)
         columnNames = columns
@@ -205,14 +253,19 @@ class Truss:
 
         return report
 
-    def viewTruss(self):
+    def viewTruss(self, NodeNumbers=False, MemberNumbers=False):
         # Plot the nodes
-        plt.scatter(self.Nodes[:, 0], self.Nodes[:, 1])
+        plt.scatter(self.Nodes[:, 0], self.Nodes[:, 1], s=50, c='k')
+        if NodeNumbers:
+            for i, node in enumerate(self.Nodes):
+                plt.text(node[0], node[1], str(i), fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
 
         # Plot the members
         for member in self.Members:
             # Get node IDs
-            i, j = member
+            i, j, material, area = member
+
+            i, j = int(i), int(j)
 
             # Get node coordinates
             node_i = self.Nodes[i]
@@ -221,11 +274,13 @@ class Truss:
             # Plot the member
             plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'k')
 
+            if MemberNumbers:
+                # Get the index of the member
+                index = np.where((self.Members == member).all(axis=1))[0][0]
+                plt.text((node_i[0] + node_j[0])/2, (node_i[1] + node_j[1])/2, str(index) + " (" + str(i) + "-" + str(j) + ")", fontsize=9, bbox=dict(facecolor='lavender', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
+
         # Make the plot axis equal
         plt.axis('equal')
-
-        # Show the plot
-        plt.show()
 
     def viewTrussDeformed(self, Displacements, Forces):
         """
@@ -270,9 +325,13 @@ class Truss:
             # Add the force as a label with a white background
             plt.text((node_i[0] + node_j[0]) / 2, (node_i[1] + node_j[1]) / 2, str(round(force[0], 2)) + "N", fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
 
-    def viewTrussExtras(self, Displacements, Forces):
+    def viewTrussExtras(self, Displacements, Forces, NodeNumbers=False):
         # Plot the nodes
-        plt.scatter(self.Nodes[:, 0], self.Nodes[:, 1])
+        if NodeNumbers:
+            for i, node in enumerate(self.Nodes):
+                plt.text(node[0], node[1], str(i), fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
+        else:
+            plt.scatter(self.Nodes[:, 0], self.Nodes[:, 1])
 
         # Plot the members
         for member in self.Members:
