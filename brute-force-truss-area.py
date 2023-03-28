@@ -12,7 +12,7 @@ truss = Truss()
 truss.loadData('truss-materials.yaml')
 
 BATCH_SIZE = 50
-RANDOM_MAX = 0.01
+RANDOM_MAX = 0.02
 INITIAL_AREA = 1
 
 def randomAreas(truss):
@@ -120,7 +120,7 @@ try:
             break
         end = time.time()
 
-        print('Epoch: {}, Epoch Time: {}s, Average Area: {}, Max Stress: {}'.format(i, round(end - start, 2), round(average_area, 6), round(max([abs(stress[0]) for stress in best_truss.Stresses]), 4)))
+        print('Epoch: {}, Epoch Time: {:.2f}s, Average Area: {:.6f}, Max Stress: {}'.format(i, round(end - start, 2), round(average_area, 6), round(max([abs(stress[0]) for stress in best_truss.Stresses]), 4)))
 
         i += 1
 except KeyboardInterrupt:
