@@ -13,7 +13,7 @@ FILENAME = 'example_trusses/warren_big.yaml'
 truss.loadData(FILENAME)
 
 BATCH_SIZE = 100
-RANDOM_MAX = 0.005
+RANDOM_MAX = 0.01
 
 def randomiseNodes(truss):
     for node in truss.Nodes:
