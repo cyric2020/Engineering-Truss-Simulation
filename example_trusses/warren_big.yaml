@@ -1,0 +1,81 @@
+Materials:
+  Steel:
+    E: 200_000_000 # 200 GPa / 200 GN/m^2
+    MaxStress: 8_000_000 # 8 GPa / 8 GN/m^2
+
+  Balsa:
+    E: 3_710_000_000 # 3.71 GPa / 3.71 GN/m^2
+    MaxStress: 6_900_000 # 6.9 MPa / 6.9 MN/m^2
+
+Joints:
+# [x, y]
+  - [0, 0]   # 0
+  - [1, 0]   # 1
+  - [2, 0]   # 2
+  - [3, 0]   # 3
+  - [4, 0]   # 4
+  - [5, 0]   # 5
+  - [6, 0]   # 6
+  - [0.5, 1] # 7
+  - [1.5, 1] # 8
+  - [2.5, 1] # 9
+  - [3.5, 1] # 10
+  - [4.5, 1] # 11
+  - [5.5, 1] # 12
+
+Members:
+# [Joint from, Joint to, Material, Area]
+  - [0, 1, Balsa, 0.0005]
+  - [1, 2, Balsa, 0.0005]
+  - [2, 3, Balsa, 0.0005]
+  - [3, 4, Balsa, 0.0005]
+  - [4, 5, Balsa, 0.0005]
+  - [5, 6, Balsa, 0.0005]
+  - [7, 8, Balsa, 0.0005]
+  - [8, 9, Balsa, 0.0005]
+  - [9, 10, Balsa, 0.0005]
+  - [10, 11, Balsa, 0.0005]
+  - [11, 12, Balsa, 0.0005]
+  - [0, 7, Balsa, 0.0005]
+  - [1, 8, Balsa, 0.0005]
+  - [2, 9, Balsa, 0.0005]
+  - [3, 10, Balsa, 0.0005]
+  - [4, 11, Balsa, 0.0005]
+  - [5, 12, Balsa, 0.0005]
+  - [7, 1, Balsa, 0.0005]
+  - [8, 2, Balsa, 0.0005]
+  - [9, 3, Balsa, 0.0005]
+  - [10, 4, Balsa, 0.0005]
+  - [11, 5, Balsa, 0.0005]
+  - [12, 6, Balsa, 0.0005]
+
+ExternalForces:
+# [X force, Y force]
+  - [0, 0]
+  - [0, 0]
+  - [0, 0]
+  - [0, -50_000] # bottom center joint
+  - [0, 0]
+  - [0, 0]
+  - [0, 0]
+  - [0, 0]
+  - [0, 0]
+  - [0, 0]
+  - [0, 0]
+  - [0, 0]
+
+Supports:
+# [Joint id, Support type (PIN, ROLLER, NONE)]
+  - [0, PIN]
+  - [1, NONE]
+  - [2, NONE]
+  - [3, NONE]
+  - [4, NONE]
+  - [5, NONE]
+  - [6, PIN]
+  - [7, NONE]
+  - [8, NONE]
+  - [9, NONE]
+  - [10, NONE]
+  - [11, NONE]
+  - [12, NONE]

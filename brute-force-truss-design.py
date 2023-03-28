@@ -7,11 +7,13 @@ import copy
 # Create a truss object
 truss = Truss()
 
+# FILENAME = 'truss-materials.yaml'
+FILENAME = 'example_trusses/warren_big.yaml'
 # Load the truss
-truss.loadData('truss-materials.yaml')
+truss.loadData(FILENAME)
 
 BATCH_SIZE = 100
-RANDOM_MAX = 0.1
+RANDOM_MAX = 0.005
 
 def randomiseNodes(truss):
     for node in truss.Nodes:
@@ -33,7 +35,7 @@ def EPOCH(best_truss=None):
             truss_copy = copy.deepcopy(best_truss)
         else:
             truss_copy = Truss()
-            truss_copy.loadData('truss-materials.yaml')
+            truss_copy.loadData(FILENAME)
         randomiseNodes(truss_copy)
         trusses.append(truss_copy)
 
@@ -81,6 +83,9 @@ try:
 
             # Put the maximum stress in the top right corner
             plt.text(0.95, 0.95, 'Max Stress: {:,}'.format(round(max_stress, 4)), horizontalalignment='right', verticalalignment='top', transform=plt.gca().transAxes)
+
+            # Before saving the image, change the figure size to 10x10
+            plt.gcf().set_size_inches(10, 5)
 
             plt.savefig('images/truss-{}.png'.format(i))
 

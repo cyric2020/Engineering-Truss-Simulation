@@ -391,8 +391,8 @@ class Truss:
             force_x = force[0]
             force_y = force[1]
 
-            arrow_length = 1
-            arrow_width = 0.1
+            arrow_length = 0.15
+            arrow_width = 0.03
 
             node = self.Nodes[i]
 
