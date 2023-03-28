@@ -6,6 +6,10 @@ import time
 class Truss:
     def __init__(self):
         pass
+        
+    def prettyifyNumber(self, number, decimals=4):
+        # Return a string representation of the number with the correct number of decimal places and add commas to the number
+        return "{:,}".format(round(number, decimals))
 
     def loadData(self, filename):
         with open(filename, 'r') as f:
@@ -183,7 +187,7 @@ class Truss:
         # Get the maximum length of each column
         membersRows = []
         for i, member in enumerate(self.Members):
-            membersRows.append([i, member[0], member[1], member[2], member[3], round(self.Forces[i][0], 4), round(self.Stresses[i][0], 4)])
+            membersRows.append([i, member[0], member[1], member[2], member[3], self.prettyifyNumber(self.Forces[i][0]), self.prettyifyNumber(self.Stresses[i][0])])
         membersTable = self.generateTable(["Member ID", "Node 1", "Node 2", "Material", "Area", "Force", "Stress"], membersRows)
         report += membersTable + "\n\n"
 
@@ -196,7 +200,7 @@ class Truss:
         # Get the maximum length of each column
         externalForcesRows = []
         for i, force in enumerate(self.ExternalForces):
-            externalForcesRows.append([i, force[0], force[1]])
+            externalForcesRows.append([i, self.prettyifyNumber(force[0]), self.prettyifyNumber(force[1])])
         externalForcesTable = self.generateTable(["Node ID", "Force X", "Force Y"], externalForcesRows)
         report += externalForcesTable + "\n\n"
 
@@ -209,7 +213,7 @@ class Truss:
         # Get the maximum length of each column
         reactionForcesRows = []
         for i, force in enumerate(self.R.reshape(-1, 2)):
-            reactionForcesRows.append([i, round(force[0], 4), round(force[1], 4)])
+            reactionForcesRows.append([i, self.prettyifyNumber(force[0]), self.prettyifyNumber(force[1])])
         reactionForcesTable = self.generateTable(["Node ID", "Force X", "Force Y"], reactionForcesRows)
         report += reactionForcesTable + "\n\n"
 
@@ -222,7 +226,7 @@ class Truss:
         # Get the maximum length of each column
         materialsRows = []
         for i, material in enumerate(self.Materials):
-            materialsRows.append([material, self.Materials[material]['E'], self.Materials[material]['MaxStress']])
+            materialsRows.append([material, self.prettyifyNumber(self.Materials[material]['E']), self.prettyifyNumber(self.Materials[material]['MaxStress'])])
         materialsTable = self.generateTable(["Material Name", "Young's Modulus", "Max Stress"], materialsRows)
         report += materialsTable + "\n\n"
 
@@ -323,7 +327,8 @@ class Truss:
                 plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'g')
 
             # Add the force as a label with a white background
-            plt.text((node_i[0] + node_j[0]) / 2, (node_i[1] + node_j[1]) / 2, str(round(force[0], 2)) + "N", fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
+            forcePretty = str("{:,}".format(round(force[0], 2))) + "N"
+            plt.text((node_i[0] + node_j[0]) / 2, (node_i[1] + node_j[1]) / 2, forcePretty, fontsize=10, bbox=dict(facecolor='lavender', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
 
     def viewTrussExtras(self, Displacements, Forces, NodeNumbers=False):
         # Plot the nodes
@@ -413,9 +418,6 @@ class Truss:
 
         # Make the plot axis equal
         plt.axis('equal')
-
-        # Show the plot
-        # plt.show()
 
     def singularityCheck(self, K):
         # Get the determinant of the matrix

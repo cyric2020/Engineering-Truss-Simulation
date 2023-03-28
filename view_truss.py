@@ -24,10 +24,10 @@ truss = Truss()
 # %%%%%%%%%%%%%%%%%
 truss.loadState("smallest_area.yaml")
 
-truss.viewTruss(NodeNumbers=True, MemberNumbers=True)
+# truss.viewTruss(NodeNumbers=True, MemberNumbers=True)
 
 displacements, forces, R = truss.Displacements, truss.Forces, truss.R
 
-# truss.viewTrussExtras(displacements, forces, NodeNumbers=True)
+truss.viewTrussExtras(displacements, forces, NodeNumbers=True)
 plt.axis('equal')
 plt.show()
