@@ -8,12 +8,19 @@ import numpy as np
 # Create a truss object
 truss = Truss()
 
+# Define the filename
+# FILENAME = 'example_trusses/warren_big.yaml'
+FILENAME = 'example_trusses/warren_big_middle_support.yaml'
+
 # Load the truss
-truss.loadData('truss-materials.yaml')
+truss.loadData(FILENAME)
 
 BATCH_SIZE = 50
-RANDOM_MAX = 0.02
-INITIAL_AREA = 1
+RANDOM_MAX = 0.001
+INITIAL_AREA = 0.025
+
+NODE_INDEX = 3
+NODE_INITIAL_WEIGHT = -50_000
 
 def randomAreas(truss):
     for member in truss.Members:
@@ -49,12 +56,19 @@ def EPOCH(best_truss=None):
             truss_copy = copy.deepcopy(best_truss)
         else:
             truss_copy = Truss()
-            truss_copy.loadData('truss-materials.yaml')
+            truss_copy.loadData(FILENAME)
 
             # Set all member areas to 1
             for member in truss_copy.Members:
                 member[3] = INITIAL_AREA
         randomAreas(truss_copy)
+
+        # Calculate the weight of the truss
+        weight = truss_copy.calculateWeight()
+
+        # Add the weight to the node
+        truss_copy.Nodes[NODE_INDEX][1] == NODE_INITIAL_WEIGHT - weight
+
         trusses.append(truss_copy)
 
     # Solve the trusses
@@ -71,7 +85,14 @@ def EPOCH(best_truss=None):
     for i in range(len(trusses)):
         truss = trusses[i]
         area = sum([float(member[3]) for member in truss.Members]) / len(truss.Members)
+        max_area = max([float(member[3]) for member in truss.Members])
         if area < min_area:
+            if trussFails(truss) or area < 0:
+                continue
+            else:
+                min_area = area
+                min_area_truss = truss
+        elif area == min_area and max_area < max([float(member[3]) for member in min_area_truss.Members]):
             if trussFails(truss) or area < 0:
                 continue
             else:
@@ -99,17 +120,6 @@ try:
             # Clear the plot
             plt.clf()
 
-            # Save an image of the truss
-            best_truss.viewTrussExtras(displacements, forces)
-
-            # Put the epoch number in the top left corner
-            # plt.text(0.05, 0.95, 'Epoch: {}'.format(i), horizontalalignment='left', verticalalignment='top', transform=plt.gca().transAxes)
-
-            # Put the maximum stress in the top right corner
-            # plt.text(0.95, 0.95, 'Max Stress: {:,}'.format(round(average_area, 4)), horizontalalignment='right', verticalalignment='top', transform=plt.gca().transAxes)
-
-            # plt.savefig('images/truss-{}.png'.format(i))
-
             average_areas.append(average_area)
             max_stresses.append(max([abs(stress[0]) for stress in best_truss.Stresses]))
 
@@ -120,7 +130,7 @@ try:
             break
         end = time.time()
 
-        print('Epoch: {}, Epoch Time: {:.2f}s, Average Area: {:.6f}, Max Stress: {}'.format(i, round(end - start, 2), round(average_area, 6), round(max([abs(stress[0]) for stress in best_truss.Stresses]), 4)))
+        print('Epoch: {}, Epoch Time: {:.2f}s, Average Area: {:.6f}, Max Stress: {:.4f}, Weight: {:.2f}Kg'.format(i, round(end - start, 2), round(average_area, 6), round(max([abs(stress[0]) for stress in best_truss.Stresses]), 4), round(best_truss.calculateWeight(False), 2)))
 
         i += 1
 except KeyboardInterrupt:

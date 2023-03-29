@@ -15,6 +15,9 @@ truss.loadData(FILENAME)
 BATCH_SIZE = 100
 RANDOM_MAX = 0.01
 
+NODE_INDEX = 3
+NODE_INITIAL_WEIGHT = -50_000
+
 def randomiseNodes(truss):
     for node in truss.Nodes:
         if node[1] != 0:
@@ -36,7 +39,15 @@ def EPOCH(best_truss=None):
         else:
             truss_copy = Truss()
             truss_copy.loadData(FILENAME)
+        
         randomiseNodes(truss_copy)
+
+        # Calculate the weight of the truss
+        weight = truss_copy.calculateWeight()
+
+        # Add the weight to the node
+        truss_copy.Nodes[NODE_INDEX][1] == NODE_INITIAL_WEIGHT - weight
+
         trusses.append(truss_copy)
 
     # Solve the trusses
@@ -61,6 +72,7 @@ def EPOCH(best_truss=None):
 
 best_truss = None
 max_stresses = []
+weights = []
 try:
     i = 0
     while True:
@@ -90,16 +102,34 @@ try:
             plt.savefig('images/truss-{}.png'.format(i))
 
             max_stresses.append(max_stress)
+            weights.append(best_truss.calculateWeight(False))
         else:
             break
         end = time.time()
 
-        print('Epoch: {}, Epoch Time: {}s, Max Stress: {}'.format(i, round(end - start, 2), round(max_stress, 4)))
+        print('Epoch: {}, Epoch Time: {:.2f}s, Max Stress: {:.4f}, Weight: {:.2f}Kg'.format(i, round(end - start, 2), round(max_stress, 4), round(best_truss.calculateWeight(False), 2)))
 
         i += 1
 except KeyboardInterrupt:
     pass
 
 plt.clf()
-plt.plot(max_stresses)
+
+# Plot max_stresses and weights on the same plot with 2 different scales
+fig, ax1 = plt.subplots()
+
+color = 'tab:red'
+ax1.set_xlabel('Epoch')
+ax1.set_ylabel('Max Stress', color=color)
+ax1.plot(max_stresses, color=color)
+ax1.tick_params(axis='y', labelcolor=color)
+
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+color = 'tab:blue'
+ax2.set_ylabel('Weight', color=color)  # we already handled the x-label with ax1
+ax2.plot(weights, color=color)
+ax2.tick_params(axis='y', labelcolor=color)
+
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.show()

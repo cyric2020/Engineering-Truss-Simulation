@@ -286,7 +286,7 @@ class Truss:
         # Make the plot axis equal
         plt.axis('equal')
 
-    def viewTrussDeformed(self, Displacements, Forces):
+    def viewTrussDeformed(self, Displacements, Forces, NodeNumbers=False, MemberNumbers=False):
         """
         This function is used internally to plot the
         deflected truss. It is not intended to be used
@@ -327,10 +327,11 @@ class Truss:
                 plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'g')
 
             # Add the force as a label with a white background
-            forcePretty = str("{:,}".format(round(force[0], 2))) + "N"
-            plt.text((node_i[0] + node_j[0]) / 2, (node_i[1] + node_j[1]) / 2, forcePretty, fontsize=10, bbox=dict(facecolor='lavender', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
+            if MemberNumbers:
+                forcePretty = str("{:,}".format(round(force[0], 2))) + "N"
+                plt.text((node_i[0] + node_j[0]) / 2, (node_i[1] + node_j[1]) / 2, forcePretty, fontsize=10, bbox=dict(facecolor='lavender', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
 
-    def viewTrussExtras(self, Displacements, Forces, NodeNumbers=False):
+    def viewTrussExtras(self, Displacements, Forces, NodeNumbers=False, MemberNumbers=False):
         # Plot the nodes
         if NodeNumbers:
             for i, node in enumerate(self.Nodes):
@@ -414,7 +415,7 @@ class Truss:
 
 
         # Draw the deformed truss
-        self.viewTrussDeformed(Displacements, Forces)
+        self.viewTrussDeformed(Displacements, Forces, NodeNumbers, MemberNumbers)
 
         # Make the plot axis equal
         plt.axis('equal')
@@ -425,6 +426,41 @@ class Truss:
 
         # If the determinant is zero, the matrix is singular
         return det == 0
+
+    def calculateWeight(self, Newtons=True):
+        # Get all the different material types in the truss
+        materials = set([member[2] for member in self.Members])
+
+        # Check that all the materials have a density attribute (in the truss file)
+        for material in materials:
+            if 'Density' not in self.Materials[material]:
+                raise Exception("Material " + material + " does not have a density attribute")
+
+        # Calculate the weight of each member
+        weights = []
+        for member in self.Members:
+            # Calculate the length of the member
+            i, j, Material, A = member
+            i, j = int(i), int(j)
+
+            node_i = self.Nodes[i]
+            node_j = self.Nodes[j]
+
+            L = np.linalg.norm(node_j - node_i)
+
+            # Calculate the weight of the member
+            weight = float(self.Materials[Material]['Density']) * float(A) * L
+
+            # Add the weight to the list
+            weights.append(weight)
+
+        # Calculate the total weight of the truss
+        total_weight = sum(weights)
+
+        if Newtons:
+            return total_weight * 9.81
+        else:
+            return total_weight
 
     def solveTruss(self):
         # Start the timer
@@ -509,6 +545,8 @@ class Truss:
                 dofs = np.array([2*node_id, 2*node_id+1])
             elif support_type == "ROLLER":
                 dofs = np.array([2*node_id+1])
+            elif support_type == "VROLLER":
+                dofs = np.array([2*node_id])
             else:
                 continue
 

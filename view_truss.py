@@ -1,5 +1,6 @@
 from truss_materials import Truss
 from matplotlib import pyplot as plt
+import time
 
 # Create a truss object
 truss = Truss()
@@ -35,13 +36,32 @@ truss = Truss()
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # Just solve the truss and view displacements
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-truss.loadData('example_trusses/warren_big.yaml')
+# truss.loadData('example_trusses/warren_big.yaml')
+# truss.loadData('example_trusses/warren_big_middle_support.yaml')
 # truss.loadData('truss-materials.yaml')
+truss.loadData('example_trusses/double_intersection_warren_big.yaml')
+
+# truss.loadState('example_trusses/warren_big_middle_support.yaml')
+
+# print(truss.calculateWeight())
 
 # truss.viewTruss(NodeNumbers=True, MemberNumbers=True)
+# plt.axis('equal')
+# plt.show()
+# exit()
 
 displacements, forces = truss.solveTruss()
 
-truss.viewTrussExtras(displacements, forces, NodeNumbers=True)
+# Print out solve time in milliseconds
+print(f"Solve time: {truss.solveTime * 1000}ms")
+
+truss.viewTrussExtras(displacements, forces, NodeNumbers=True, MemberNumbers=False)
+
+with open('tmp.txt', 'w') as f:
+    truss.Displacements = displacements
+    truss.Forces = forces
+    report = truss.generateReport()
+    f.write(report)
+
 plt.axis('equal')
 plt.show()
