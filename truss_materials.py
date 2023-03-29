@@ -491,11 +491,14 @@ class Truss:
             s = (node_j[1] - node_i[1]) / L
 
             # Calculate the stiffness matrix
+            c2 = c**2
+            s2 = s**2
+            cs = c*s
             k_m = np.array([
-                [c**2, c*s, -c**2, -c*s],
-                [c*s, s**2, -c*s, -s**2],
-                [-c**2, -c*s, c**2, c*s],
-                [-c*s, -s**2, c*s, s**2]
+                [c2, cs, -c2, -cs],
+                [cs, s2, -cs, -s2],
+                [-c2, -cs, c2, cs],
+                [-cs, -s2, cs, s2]
             ])
 
             # Calculate the stiffness matrix for the member
