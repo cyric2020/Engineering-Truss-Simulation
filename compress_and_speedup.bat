@@ -1,1 +1,0 @@
-ffmpeg -i truss_slow.gif -filter_complex "[0:v]setpts=0.5*PTS[v]" -map "[v]" output.gif
