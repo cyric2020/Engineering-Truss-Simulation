@@ -36,8 +36,9 @@ truss = Truss()
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # Just solve the truss and view displacements
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+truss.loadData('example_trusses/truss_test.yaml')
 # truss.loadData('example_trusses/warren_big.yaml')
-truss.loadData('example_trusses/warren_big_middle_support.yaml')
+# truss.loadData('example_trusses/warren_big_middle_support.yaml')
 # truss.loadData('truss-materials.yaml')
 # truss.loadData('example_trusses/double_intersection_warren_big.yaml')
 

@@ -1,0 +1,1 @@
+MAKE TRUSS 3D (should be possible, just add another DOF)
