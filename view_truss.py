@@ -37,9 +37,9 @@ truss = Truss()
 # Just solve the truss and view displacements
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # truss.loadData('example_trusses/warren_big.yaml')
-# truss.loadData('example_trusses/warren_big_middle_support.yaml')
+truss.loadData('example_trusses/warren_big_middle_support.yaml')
 # truss.loadData('truss-materials.yaml')
-truss.loadData('example_trusses/double_intersection_warren_big.yaml')
+# truss.loadData('example_trusses/double_intersection_warren_big.yaml')
 
 # truss.loadState('example_trusses/warren_big_middle_support.yaml')
 
@@ -55,7 +55,7 @@ displacements, forces = truss.solveTruss()
 # Print out solve time in milliseconds
 print(f"Solve time: {truss.solveTime * 1000}ms")
 
-truss.viewTrussExtras(displacements, forces, NodeNumbers=True, MemberNumbers=False)
+truss.viewTrussExtras(displacements, forces, NodeNumbers=True, MemberNumbers=True)
 
 with open('tmp.txt', 'w') as f:
     truss.Displacements = displacements

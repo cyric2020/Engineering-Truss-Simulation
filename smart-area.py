@@ -12,6 +12,9 @@ truss = Truss()
 # Define the filename
 FILENAME = 'example_trusses/warren_big.yaml'
 
+# Define FOS
+FOS = 1.5
+
 # Load the truss
 truss.loadData(FILENAME)
 
@@ -39,11 +42,14 @@ for i, member in enumerate(truss.Members):
     # Check if the member is a zero force member
     if force == 0:
         # Set the area to zero
+        # member[3] = 0.0000000001
         member[3] = 0
         continue
     
     # Calculate the area
-    area = force / (max_stress - 1)
+    # area = force / (max_stress - 1)
+    # Incorperate the FOS
+    area = force / (max_stress / FOS - 1)
     # print(force, stress, area)
     # Set the area
     member[3] = area
@@ -66,4 +72,4 @@ if trussFails(truss):
 truss.viewTrussExtras(displacements, forces, NodeNumbers=False, MemberNumbers=True)
 
 plt.axis('equal')
-plt.show()
+# plt.show()

@@ -329,7 +329,7 @@ class Truss:
             # Add the force as a label with a white background
             if MemberNumbers:
                 forcePretty = str("{:,}".format(round(force[0], 2))) + "N"
-                plt.text((node_i[0] + node_j[0]) / 2, (node_i[1] + node_j[1]) / 2, forcePretty, fontsize=10, bbox=dict(facecolor='lavender', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
+                plt.text((node_i[0] + node_j[0]) / 2, (node_i[1] + node_j[1]) / 2, forcePretty, fontsize=8, bbox=dict(facecolor='lavender', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
 
     def viewTrussExtras(self, Displacements, Forces, NodeNumbers=False, MemberNumbers=False):
         # Plot the nodes
