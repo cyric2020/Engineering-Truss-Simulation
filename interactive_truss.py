@@ -16,8 +16,14 @@ last_displacements = None
 
 CLOSEST_NODE_LOCK = 1
 
+
+moving = False
 def on_move(event):
-    global last_displacements, CLOSEST_NODE_LOCK
+    global moving, last_displacements, CLOSEST_NODE_LOCK
+
+    if moving:
+        return
+    moving = True
 
     start = time.time()
 
@@ -87,10 +93,13 @@ def on_move(event):
 
         # update the plot
         plt.draw()
+        plt.pause(0.01)
 
         end = time.time()
 
         print(f'FPS: {1 / (end - start)}')
+
+    moving = False
 
 def on_press(event):
     # Key press event
