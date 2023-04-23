@@ -2,6 +2,9 @@ import numpy as np
 import yaml
 import matplotlib.pyplot as plt
 import time
+import math
+
+pin_y_offset = 0.025
 
 class Truss:
     def __init__(self):
@@ -174,8 +177,9 @@ class Truss:
         # Get the maximum length of each column
         nodesRows = []
         for i, node in enumerate(self.Nodes):
-            nodesRows.append([i, node[0], node[1], round(self.Displacements[2*i][0], 4), round(self.Displacements[2*i+1][0], 4), self.Supports[i][1]])
-        nodesTable = self.generateTable(["Node ID", "X", "Y", "Displacement X", "Displacement Y", "Support Type"], nodesRows)
+            nodesRows.append([i, node[0], node[1], round(self.Displacements[2*i][0], 4), round(self.Displacements[2*i+1][0], 4), 
+                              round(math.sqrt(self.Displacements[2*i][0]**2 + self.Displacements[2*i+1][0]**2), 4), self.Supports[i][1]])
+        nodesTable = self.generateTable(["Node ID", "X", "Y", "Displacement X", "Displacement Y", "Euclidean Displacement", "Support Type"], nodesRows)
         report += nodesTable + "\n\n"
 
 
@@ -258,8 +262,17 @@ class Truss:
         return report
 
     def viewTruss(self, NodeNumbers=False, MemberNumbers=False):
-        # Plot the nodes
-        plt.scatter(self.Nodes[:, 0], self.Nodes[:, 1], s=50, c='k')
+        # Plot all nodes that arent supports as black dots
+        for i, node in enumerate(self.Nodes):
+            if self.Supports[i][1] == "NONE":
+                plt.scatter(node[0], node[1], s=30, c='k')
+            elif self.Supports[i][1] == "PIN":
+                # Plot them as triangles
+                plt.scatter(node[0], node[1] - pin_y_offset, s=60, c='r', marker="^")
+            elif self.Supports[i][1] == "ROLLER":
+                # Plot them as blue triangles
+                plt.scatter(node[0], node[1] - pin_y_offset, s=60, c='b', marker="^")
+
         if NodeNumbers:
             for i, node in enumerate(self.Nodes):
                 plt.text(node[0], node[1], str(i), fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
@@ -302,8 +315,16 @@ class Truss:
 
             Nodes[i] = node + displacement
 
-        # Plot the nodes
-        plt.scatter(Nodes[:, 0], Nodes[:, 1])
+        # Plot all nodes that arent supports as black dots
+        for i, node in enumerate(Nodes):
+            if self.Supports[i][1] == "NONE":
+                plt.scatter(node[0], node[1], s=30, c='k', zorder=2)
+            elif self.Supports[i][1] == "PIN":
+                # Plot them as triangles
+                plt.scatter(node[0], node[1] - pin_y_offset, s=60, c='r', marker="^", zorder=2)
+            elif self.Supports[i][1] == "ROLLER":
+                # Plot them as blue triangles
+                plt.scatter(node[0], node[1] - pin_y_offset, s=60, c='b', marker="^", zorder=2)
 
         # Plot the forces
         for o, member in enumerate(self.Members):
@@ -319,58 +340,94 @@ class Truss:
             force = Forces[o]
 
             # Plot the force
+            # if round(force[0], 2) > 0:
+            #     plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'b', linewidth=2)
+            # elif round(force[0], 2) < 0:
+            #     plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'r', linewidth=2)
+            # else:
+            #     plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'g', linewidth=2)
+
+            # Change the color of the force based on whether it is tensile or compressive
+            # and the strength of the color based on the magnitude of the force
+            strength = abs(force[0]) / abs(max(Forces, key=abs)[0])
+            # print(strength)
+            # invstrength = (1-strength)/2
+            invstrength = 1-strength
+
+            # Scale the invstrength to be between 0 and 0.9
+            invstrength = invstrength * 0.8
+
+            if abs(round(force[0], 2)) == 0:
+                invstrength = 0
+
+            color = (0, 0, 0)
             if round(force[0], 2) > 0:
-                plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'b')
+                color = (invstrength, invstrength, 1)
             elif round(force[0], 2) < 0:
-                plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'r')
+                color = (1, invstrength, invstrength)
             else:
-                plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'g')
+                color = (invstrength, 1, invstrength)
+
+            # Plot the force
+            plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], color=color, linewidth=2, zorder=1)
 
             # Add the force as a label with a white background
             if MemberNumbers:
                 forcePretty = str("{:,}".format(round(force[0], 2))) + "N"
-                plt.text((node_i[0] + node_j[0]) / 2, (node_i[1] + node_j[1]) / 2, forcePretty, fontsize=8, bbox=dict(facecolor='lavender', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
+                plt.text((node_i[0] + node_j[0]) / 2, (node_i[1] + node_j[1]) / 2, forcePretty, fontsize=9, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
 
-    def viewTrussExtras(self, Displacements, Forces, NodeNumbers=False, MemberNumbers=False):
+    def viewTrussExtras(self, Displacements, Forces, NodeNumbers=False, MemberNumbers=False, drawOriginal=True):
         # Plot the nodes
         if NodeNumbers:
             for i, node in enumerate(self.Nodes):
-                plt.text(node[0], node[1], str(i), fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='center')
-        else:
-            plt.scatter(self.Nodes[:, 0], self.Nodes[:, 1])
+                plt.text(node[0] + 0.035, node[1], str(i), fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='left', verticalalignment='center')
+        # else:
+            # plt.scatter(self.Nodes[:, 0], self.Nodes[:, 1])
 
-        # Plot the members
-        for member in self.Members:
-            # Get node IDs
-            i, j, Material, A = member
-            i, j = int(i), int(j)
+        if drawOriginal:
+            # Plot the members
+            for member in self.Members:
+                # Get node IDs
+                i, j, Material, A = member
+                i, j = int(i), int(j)
 
-            # Get node coordinates
-            node_i = self.Nodes[i]
-            node_j = self.Nodes[j]
+                # Get node coordinates
+                node_i = self.Nodes[i]
+                node_j = self.Nodes[j]
 
-            # Plot the member
-            plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'k:')
-
-        # Plot the supports
-        for support in self.Supports:
+                # Plot the member
+                plt.plot([node_i[0], node_j[0]], [node_i[1], node_j[1]], 'k:')
+        
+        # Plot the external forces
+        for i, force in enumerate(self.ExternalForces):
             # Get node ID
-            node_id, support_type = support
-
-            # Convert node_id to an integer
-            node_id = int(node_id)
+            node_id = int(i)
 
             # Get node coordinates
             node = self.Nodes[node_id]
 
-            # Plot the support
-            if support_type == "PIN":
-                plt.plot(node[0], node[1], 'ro')
-            elif support_type == "ROLLER":
-                plt.plot(node[0], node[1], 'bo')
-        
-        # Plot the forces
-        # TODO
+            # Add the deformation to the node
+            node = (node + Displacements[2*node_id:2*node_id+2].T)[0]
+
+            # Get the force
+            force_x = force[0]
+            force_y = force[1]
+
+            # Plot the force
+            arrow_length = 0.15
+            arrow_width = 0.03
+            if force_x > 0:
+                plt.arrow(node[0], node[1], arrow_length, 0, head_width=arrow_width, head_length=arrow_width, color="b")
+                plt.text(node[0] + arrow_length + arrow_width, node[1], str("{:,}".format(round(force_x, 2))) + "N", fontsize=9, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='left', verticalalignment='center')
+            elif force_x < 0:
+                plt.arrow(node[0], node[1], -arrow_length, 0, head_width=arrow_width, head_length=arrow_width, color="r")
+                plt.text(node[0] - arrow_length - arrow_width, node[1], str("{:,}".format(round(abs(force_x), 2))) + "N", fontsize=9, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='right', verticalalignment='center')
+            if force_y > 0:
+                plt.arrow(node[0], node[1], 0, arrow_length, head_width=arrow_width, head_length=arrow_width, color="b")
+                plt.text(node[0], node[1] + arrow_length + arrow_width, str("{:,}".format(round(force_y, 2))) + "N", fontsize=9, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='bottom')
+            elif force_y < 0:
+                plt.arrow(node[0], node[1], 0, -arrow_length, head_width=arrow_width, head_length=arrow_width, color="r")
+                plt.text(node[0], node[1] - arrow_length - arrow_width, str("{:,}".format(round(abs(force_y), 2))) + "N", fontsize=9, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='top')
 
         # Plot the displacements
         for i, displacement in enumerate(Displacements.reshape(-1, 2)):
@@ -385,7 +442,7 @@ class Truss:
                 continue
 
             # Plot the displacement
-            plt.arrow(node[0], node[1], displacement[0], displacement[1], head_width=0.01, head_length=0.01, color="m")
+            # plt.arrow(node[0], node[1], displacement[0], displacement[1], head_width=0.01, head_length=0.01, color="m")
 
         # Draw the reaction forces (arrows)
         for i, force in enumerate(self.R.reshape(-1, 2)):
@@ -397,6 +454,9 @@ class Truss:
 
             node = self.Nodes[i]
 
+            # Add the deformation to the node
+            node = (node + Displacements[2*i:2*i+2].T)[0]
+
             node_x = node[0]
             node_y = node[1]
 
@@ -405,13 +465,13 @@ class Truss:
                 plt.arrow(node_x-arrow_length-arrow_width, node_y, arrow_length, 0, head_width=arrow_width, head_length=arrow_width, color="g")
 
                 # draw the text for the reaction force at the base of the arrow
-                plt.text(node_x-arrow_length-arrow_width, node_y, str(round(force_x, 2)) + "N", fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='right', verticalalignment='center')
+                plt.text(node_x-arrow_length-arrow_width, node_y, str("{:,}".format(round(force_x, 2))) + "N", fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='right', verticalalignment='center')
             if force_y != 0:
                 # draw an arrow in the y direction at the support
                 plt.arrow(node_x, node_y-arrow_length-arrow_width, 0, arrow_length, head_width=arrow_width, head_length=arrow_width, color="g")
 
                 # draw the text for the reaction force at the base of the arrow
-                plt.text(node_x, node_y-arrow_length-arrow_width, str(round(force_y, 2)) + "N", fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='top')
+                plt.text(node_x, node_y-arrow_length-arrow_width, str("{:,}".format(round(force_y, 2))) + "N", fontsize=10, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='center', verticalalignment='top')
 
 
         # Draw the deformed truss

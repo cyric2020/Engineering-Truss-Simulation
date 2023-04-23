@@ -36,27 +36,32 @@ truss = Truss()
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # Just solve the truss and view displacements
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-truss.loadData('example_trusses/truss_test.yaml')
+# truss.loadData('example_trusses/truss_test.yaml')
 # truss.loadData('example_trusses/warren_big.yaml')
 # truss.loadData('example_trusses/warren_big_middle_support.yaml')
 # truss.loadData('truss-materials.yaml')
 # truss.loadData('example_trusses/double_intersection_warren_big.yaml')
 
+# Trusses for research
+# truss.loadData('base_trusses/pratt.yaml')
+# truss.loadData('base_trusses/howe.yaml')
+# truss.loadData('base_trusses/warren.yaml')
+
 # truss.loadState('example_trusses/warren_big_middle_support.yaml')
 
 # print(truss.calculateWeight())
 
-# truss.viewTruss(NodeNumbers=True, MemberNumbers=True)
-# plt.axis('equal')
-# plt.show()
-# exit()
+truss.viewTruss(NodeNumbers=False, MemberNumbers=False)
+plt.axis('equal')
+plt.show()
+exit()
 
 displacements, forces = truss.solveTruss()
 
 # Print out solve time in milliseconds
 print(f"Solve time: {truss.solveTime * 1000}ms")
 
-truss.viewTrussExtras(displacements, forces, NodeNumbers=True, MemberNumbers=True)
+truss.viewTrussExtras(displacements, forces, NodeNumbers=False, MemberNumbers=True, drawOriginal=False)
 
 with open('tmp.txt', 'w') as f:
     truss.Displacements = displacements
