@@ -414,8 +414,8 @@ class Truss:
             force_y = force[1]
 
             # Plot the force
-            arrow_length = 0.15
-            arrow_width = 0.03
+            arrow_length = 0.5
+            arrow_width = 0.1
             if force_x > 0:
                 plt.arrow(node[0], node[1], arrow_length, 0, head_width=arrow_width, head_length=arrow_width, color="b")
                 plt.text(node[0] + arrow_length + arrow_width, node[1], str("{:,}".format(round(force_x, 2))) + "N", fontsize=9, bbox=dict(facecolor='white', edgecolor='none', pad=1), horizontalalignment='left', verticalalignment='center')

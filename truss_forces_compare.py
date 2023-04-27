@@ -6,13 +6,15 @@ import numpy as np
 # Create a truss object
 truss = Truss()
 
-trusses = ['howe', 'pratt', 'warren']
+# trusses = ['howe', 'pratt', 'warren']
+trusses = ['pratt_flat_w_pylon', 'pratt_rise', 'warren_rise', 'warren_flat']
 
 forces_abs = [[] for _ in trusses]
 forces_l = [[] for _ in trusses]
 
 for i, truss_name in enumerate(trusses):
-    truss.loadData(f'base_trusses/{truss_name}.yaml')
+    # truss.loadData(f'base_trusses/{truss_name}.yaml')
+    truss.loadData(f'testing_trusses/{truss_name}.yaml')
     displacements, forces = truss.solveTruss()
 
     # add the forces to the list of forces
