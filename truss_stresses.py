@@ -6,13 +6,16 @@ import numpy as np
 # Create a truss object
 truss = Truss()
 
-trusses = ['howe', 'pratt', 'warren']
+# trusses = ['howe', 'pratt', 'warren']
+# trusses = ['pratt_rise', 'warren_rise', 'warren_flat']
+trusses = ['pratt_flat_w_pylon', 'pratt_rise', 'warren_rise', 'warren_flat']
 
 stresses = [[] for _ in trusses]
 forces_l = [[] for _ in trusses]
 
 for i, truss_name in enumerate(trusses):
-    truss.loadData(f'base_trusses/{truss_name}.yaml')
+    # truss.loadData(f'base_trusses/{truss_name}.yaml')
+    truss.loadData(f'testing_trusses/{truss_name}.yaml')
     displacements, forces = truss.solveTruss()
 
     # convert the list of arrays to a list of scalars
@@ -41,7 +44,7 @@ ax[1].set_title('Forces')
 
 
 # Create a second figure for plotting the distribution of forces
-fig2, ax2 = plt.subplots(1, 3, sharey=True, sharex=True)
+fig2, ax2 = plt.subplots(1, len(trusses), sharey=True, sharex=True)
 
 # Plot the distribution of forces
 for i, truss_name in enumerate(trusses):
@@ -60,7 +63,7 @@ for i, truss_name in enumerate(trusses):
 # Display the y axis as percentages
 for i in range(len(ax2)):
     yticks = ax2[i].get_yticks()
-    ax2[i].set_yticklabels([f'{y/len(forces_l[i])*100:.2f}%' for y in yticks])
+    # ax2[i].set_yticklabels([f'{y/len(forces_l[i])*100:.2f}%' for y in yticks])
 
 # Set the ylabels
 ax2[0].set_ylabel('Percentage of Forces')

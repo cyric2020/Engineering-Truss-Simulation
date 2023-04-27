@@ -2,6 +2,13 @@ from truss_materials import Truss
 from matplotlib import pyplot as plt
 import time
 
+def plotForces(truss):
+    plt.boxplot([abs(f[0]) for f in truss.Forces])
+    # plt.hist([abs(f[0]) for f in truss.Forces])
+    plt.ylabel('Force (N)')
+    plt.title('Forces')
+    plt.show()
+
 # Create a truss object
 truss = Truss()
 
@@ -47,21 +54,29 @@ truss = Truss()
 # truss.loadData('base_trusses/howe.yaml')
 # truss.loadData('base_trusses/warren.yaml')
 
+# Trusses for testing
+# truss.loadData('testing_trusses/warren_flat.yaml')
+truss.loadData('testing_trusses/pratt_flat_w_pylon.yaml')
+# truss.loadData('testing_trusses/pratt_rise.yaml')
+# truss.loadData('testing_trusses/warren_rise.yaml')
+
 # truss.loadState('example_trusses/warren_big_middle_support.yaml')
 
 # print(truss.calculateWeight())
 
-truss.viewTruss(NodeNumbers=False, MemberNumbers=False)
-plt.axis('equal')
-plt.show()
-exit()
+# truss.viewTruss(NodeNumbers=True, MemberNumbers=False)
+# plt.axis('equal')
+# plt.show()
+# exit()
 
 displacements, forces = truss.solveTruss()
+
+# plotForces(truss)
 
 # Print out solve time in milliseconds
 print(f"Solve time: {truss.solveTime * 1000}ms")
 
-truss.viewTrussExtras(displacements, forces, NodeNumbers=False, MemberNumbers=True, drawOriginal=False)
+truss.viewTrussExtras(displacements, forces, NodeNumbers=False, MemberNumbers=True, drawOriginal=True)
 
 with open('tmp.txt', 'w') as f:
     truss.Displacements = displacements
