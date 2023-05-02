@@ -1,0 +1,24 @@
+Materials:
+  Steel:
+    E: 200_000_000 # 200 GPa
+    # MaxStress: 8*10^8 # 800 N/m^2
+    MaxStress: 8_000_000_000 # 8 GPa
+
+Joints:
+  - [0, 1]
+  - [1, 1]
+  - [2, 0]
+
+Members:
+  - [0, 1, Steel, 0.0005]
+  - [1, 2, Steel, 0.0005]
+
+ExternalForces:
+  - [0, 0]
+  - [0, -1_000]
+  - [0, 0]
+
+Supports:
+  - [0, PIN]
+  - [1, NONE]
+  - [2, PIN]

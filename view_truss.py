@@ -55,10 +55,13 @@ truss = Truss()
 # truss.loadData('base_trusses/warren.yaml')
 
 # Trusses for testing
-# truss.loadData('testing_trusses/warren_flat.yaml')
+truss.loadData('testing_trusses/warren_flat.yaml')
 # truss.loadData('testing_trusses/pratt_flat_w_pylon.yaml')
 # truss.loadData('testing_trusses/pratt_rise.yaml')
-truss.loadData('testing_trusses/warren_rise.yaml')
+# truss.loadData('testing_trusses/warren_rise.yaml')
+
+# Truss for verification
+# truss.loadData('verification_trusses/small_truss.yaml')
 
 # truss.loadState('example_trusses/warren_big_middle_support.yaml')
 
