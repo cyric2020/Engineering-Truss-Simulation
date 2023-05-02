@@ -55,10 +55,12 @@ truss = Truss()
 # truss.loadData('base_trusses/warren.yaml')
 
 # Trusses for testing
-truss.loadData('testing_trusses/warren_flat.yaml')
+# truss.loadData('testing_trusses/warren_flat.yaml')
 # truss.loadData('testing_trusses/pratt_flat_w_pylon.yaml')
 # truss.loadData('testing_trusses/pratt_rise.yaml')
 # truss.loadData('testing_trusses/warren_rise.yaml')
+
+truss.loadData('testing_trusses/warren_rise_extra_members.yaml')
 
 # Truss for verification
 # truss.loadData('verification_trusses/small_truss.yaml')
@@ -67,10 +69,10 @@ truss.loadData('testing_trusses/warren_flat.yaml')
 
 # print(truss.calculateWeight())
 
-# truss.viewTruss(NodeNumbers=True, MemberNumbers=False)
-# plt.axis('equal')
-# plt.show()
-# exit()
+truss.viewTruss(NodeNumbers=True, MemberNumbers=False)
+plt.axis('equal')
+plt.show()
+exit()
 
 displacements, forces = truss.solveTruss()
 

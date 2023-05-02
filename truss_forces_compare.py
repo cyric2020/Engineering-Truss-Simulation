@@ -8,6 +8,7 @@ truss = Truss()
 
 # trusses = ['howe', 'pratt', 'warren']
 trusses = ['pratt_flat_w_pylon', 'pratt_rise', 'warren_rise', 'warren_flat']
+# trusses = ['warren_rise', 'warren_rise_extra_members']
 
 forces_abs = [[] for _ in trusses]
 forces_l = [[] for _ in trusses]
@@ -24,8 +25,13 @@ for i, truss_name in enumerate(trusses):
 # boxplot the stresses and forces
 fig, ax = plt.subplots(1, 2, sharey=False)
 # fig, ax = plt.subplots(1, 2, sharey=True)
-ax[0].boxplot(forces_abs, labels=trusses)
-ax[1].boxplot(forces_l, labels=trusses)
+# ax[0].boxplot(forces_abs, labels=trusses)
+# ax[1].boxplot(forces_l, labels=trusses)
+
+# Boxplot with custom whiskers
+whisk = 1
+ax[0].boxplot(forces_abs, labels=trusses, whis=whisk)
+ax[1].boxplot(forces_l, labels=trusses, whis=whisk)
 
 # set the ylabels
 ax[0].set_ylabel('Force (N)')
