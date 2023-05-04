@@ -522,6 +522,58 @@ class Truss:
         else:
             return total_weight
 
+    def applyBeamWeights(self):
+        # Loop through each node
+        for p, node in enumerate(self.Nodes):
+            # Get every member that is connected to the node
+            connected_members = []
+            for member in self.Members:
+                # Get the node IDs
+                member_i, member_j, Material, A = member
+                member_i, member_j = int(member_i), int(member_j)
+
+                # Check if the node is connected to the member
+                if member_i == p or member_j == p:
+                    connected_members.append(member.tolist())
+
+            for connected_member in connected_members:
+                # Calculate the weight of the member
+                i, j, Material, A = connected_member
+                i, j = int(i), int(j)
+
+                node_i = self.Nodes[i]
+                node_j = self.Nodes[j]
+
+                L = np.linalg.norm(node_j - node_i)
+
+                # Calculate the weight of the member
+                weight = float(self.Materials[Material]['Density']) * float(A) * L
+
+                weight_newtons = weight * 9.81
+
+                # Add the weight to the external forces at the current node
+                self.ExternalForces[p][1] -= weight_newtons/2
+            # print(connected_members)
+
+    def failedMembers(self):
+        # Check if any members have failed, and return a list of the failed members
+        failed_members = []
+        for i, member in enumerate(self.Members):
+            # Get the stress
+            stress = self.Stresses[i]
+
+            # Get the material
+            Material = member[2]
+
+            # Get the max stress
+            max_stress = float(self.Materials[Material]['MaxStress'])
+
+            # Check if the stress is greater than the max stress
+            if abs(stress) > max_stress:
+                failed_members.append(i)
+
+        return failed_members
+
     def solveTruss(self):
         # Start the timer
         start = time.time()

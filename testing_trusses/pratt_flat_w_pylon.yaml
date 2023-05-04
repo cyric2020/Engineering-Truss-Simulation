@@ -1,6 +1,6 @@
 Materials:
   Steel:
-    E: 200_000_000 # 200 GPa / 200 GN/m^2
+    E: 200_000_000 # 200 GPa / 200 GN/m^2 (INNACURATE)
     MaxStress: 8_000_000 # 8 GPa / 8 GN/m^2
     Density: 8000 # 8000 kg/m^3
 
