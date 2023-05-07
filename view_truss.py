@@ -95,26 +95,26 @@ def roundUp(n, decimals=0):
 
 # displacements, forces = truss.solveTruss()
 
-FOS = 1.5
-truss.applyBeamWeights()
-while len(truss.failedMembers()) > 0:
-    # Smart solve areas
-    for i, member in enumerate(truss.Members):
-        area = float(member[3])
-        stress = truss.Stresses[i][0]
-        force = abs(forces[i][0])
-        material = truss.Materials[member[2]]
-        maxStress = (material['MaxStress'] / FOS) - 1
-        member[3] = roundUp(force / maxStress, 4)
+# FOS = 1.5
+# truss.applyBeamWeights()
+# while len(truss.failedMembers()) > 0:
+#     # Smart solve areas
+#     for i, member in enumerate(truss.Members):
+#         area = float(member[3])
+#         stress = truss.Stresses[i][0]
+#         force = abs(forces[i][0])
+#         material = truss.Materials[member[2]]
+#         maxStress = (material['MaxStress'] / FOS) - 1
+#         member[3] = roundUp(force / maxStress, 4)
 
-        if force == 0:
-            member[3] = 0.0001
-        # print(f"Area for member {i}: {member[3]}")
+#         if force == 0:
+#             member[3] = 0.0001
+#         # print(f"Area for member {i}: {member[3]}")
 
-    displacements, forces = truss.solveTruss()
+#     displacements, forces = truss.solveTruss()
 
-    print(len(truss.failedMembers()))
-    truss.applyBeamWeights()
+#     print(len(truss.failedMembers()))
+#     truss.applyBeamWeights()
 
 # plotForces(truss)
 
