@@ -36,6 +36,10 @@ for t, truss_name in enumerate(trusses):
 
     clusters = [[] for _ in range(len(truss.Nodes))]
 
+    # Set all external loads to 0
+    for i in range(len(truss.ExternalForces)):
+        truss.ExternalForces[i] = [0, 0]
+
     # Loop through each nfl node and apply the load
     for i in nfl:
         truss.ExternalForces[i] = load
